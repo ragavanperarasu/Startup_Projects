@@ -2,8 +2,8 @@ sheets create
 
 1) patients - pid (PK)	name	age	gender	phone	address
 2) visits - visit_id (PK)	pid (FK)	visit_date	diagnosis	reason	follow_up_date	category
-3) treatments - 
-4) payments
-5) reports
-6) updates
-7) products
+3) treatments - treatment_id	visit_id (FK)	notes
+4) payments - payment_id	visit_id (FK)	pid (FK)	date	from_date	end_date	total_amount	paid_amount	balance	notes
+5) reports - pid (PK)	bp	dm	epilepsy	metal implent	medications	heart diseases	pregnent/feeding	pacemaker	surgeries	thyroid	notes	injury	trauma	fracture	cummulative trauma	others	chief complaints	past history	biological	phychological	sociological	objective examination	inverstigation	diagnosis	treatment	home advices	referred by	link	
+6) updates - pid (PK)	date	updates
+7) products - pid (PK)	date	product name	qty	price

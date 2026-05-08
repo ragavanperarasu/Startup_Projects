@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siva Physiocare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+      body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f8f9fa; overflow-x: hidden; }
+      .split-left { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 4rem; position: fixed; width: 33.333333%; }
+      .split-right { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; background-color: #ffffff; margin-left: 33.333333%; width: 66.666667%; }
+      .form-wrapper { width: 100%; max-width: 800px; }
+      .form-control, .form-select { border-radius: 8px; padding: 12px 16px; border: 1px solid #dee2e6; transition: all 0.2s; }
+      .readonly-bg { background-color: #e9ecef !important; cursor: not-allowed; font-weight: bold; color: #1e3c72; }
+      
+      .btn-custom { border: none; padding: 14px 20px; border-radius: 8px; font-weight: 600; transition: all 0.3s; }
+      .btn-primary-custom { background-color: #1e3c72; color: white; }
+      .btn-success-custom { background-color: #10b981; color: white; }
+      .btn-purple-custom { background-color: #6f42c1; color: white; }
+      .btn-info-custom { background-color: #0dcaf0; color: #000; }
+      .btn-orange-custom { background-color: #fd7e14; color: white; }
+      .btn-pink-custom { background-color: #d63384; color: white; }
+
+      .nav-tabs-custom { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; border-bottom: 2px solid #e9ecef; padding-bottom: 15px; }
+      .nav-tab-btn { padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; border: 2px solid transparent; background: transparent; color: #6c757d; }
+      
+      .nav-tab-btn.active-register { background-color: #1e3c72; color: white; }
+      .nav-tab-btn.active-visit { background-color: #10b981; color: white; }
+      .nav-tab-btn.active-payment { background-color: #6f42c1; color: white; }
+      .nav-tab-btn.active-history { background-color: #0dcaf0; color: #000; }
+      .nav-tab-btn.active-addReport { background-color: #fd7e14; color: white; }
+      .nav-tab-btn.active-viewReport { background-color: #d63384; color: white; }
+      
+      .tab-section { display: none; }
+      .details-wrapper { display: none; animation: fadeIn 0.4s ease-in-out; }
+      .report-card { border: 1px solid #dee2e6; border-radius: 12px; padding: 15px; margin-bottom: 20px; background-color: #fff; }
+      .report-header { background-color: #f8f9fa; border-radius: 8px; padding: 10px; margin-bottom: 15px; font-weight: bold; }
+      .badge-yes { background-color: #dc3545; color: white; padding: 5px 10px; border-radius: 6px;}
+      .badge-no { background-color: #e9ecef; color: #6c757d; padding: 5px 10px; border-radius: 6px; }
+
+
+      
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+      /* PRINT STYLES - THIS FORMATS THE REPORT PROFESSIONALLY */
+      .print-only-header { display: none; }
+      @media print {
+        /* Force background colors to print correctly */
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        
+        /* Set base document to Times New Roman, 12pt, Black */
+        body { background-color: white !important; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; color: black !important; line-height: 1.5 !important; }
+        
+        /* Hide Web UI Elements */
+        .split-left, .nav-tabs-custom, button, .input-group, #viewMsg, .d-print-none { display: none !important; }
+        .split-right { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        .form-wrapper { max-width: 100% !important; }
+        #reportViewDashboard { border: none !important; box-shadow: none !important; margin-top: 0 !important; padding: 0 !important; }
+        
+        /* Force ALL Content text to be Black */
+        p, span, div, td, th, label, li { font-size: 12pt !important; font-family: 'Times New Roman', Times, serif !important; color: black !important; }
+        strong, b { font-family: 'Times New Roman', Times, serif !important; color: black !important; font-weight: bold !important; }
+        
+        /* Force ALL Headings to be Violet */
+        h1, h2, h3, h4, h5, h6 { font-family: 'Times New Roman', Times, serif !important; color: #8A2BE2 !important; }
+        
+        /* Section Headings (Medical History, Clinical Details) */
+        h5 { 
+          font-size: 14pt !important; 
+          border-bottom: 1.5px solid #8A2BE2 !important; /* Violet Underline */
+          padding-bottom: 6px !important;  /* Space between text and underline */
+          margin-top: 25px !important;     /* Space above heading */
+          margin-bottom: 18px !important;  /* PROPER SPACE BELOW HEADING */
+        }
+        
+        /* Fix Patient ID Badge to solid Black */
+        #vr_pid { background-color: black !important; color: white !important; border-radius: 4px; padding: 4px 8px; font-weight: bold !important; }
+        
+        /* Reverse Yes/No Badges for Print (Proper alignment & spacing) */
+        .badge-yes { background-color: #343a40 !important; color: white !important; border: 1px solid #343a40 !important; padding: 6px 12px !important; margin: 4px !important; display: inline-block !important; border-radius: 4px !important; }
+        .badge-no { background-color: transparent !important; color: #6c757d !important; border: 1px solid #dee2e6 !important; padding: 6px 12px !important; margin: 4px !important; display: inline-block !important; border-radius: 4px !important; }
+
+        /* Clean up web backgrounds for print */
+        .bg-light, .bg-danger, .border, .rounded { background-color: transparent !important; border: none !important; }
+        
+        /* PROPER ALIGNMENT: Force Bootstrap Grid to work on Paper */
+        .row { display: flex !important; flex-wrap: wrap !important; width: 100% !important; margin-bottom: 10px !important; }
+        .col-md-6 { width: 50% !important; padding-right: 15px !important; box-sizing: border-box !important; }
+        .col-md-4 { width: 33.33% !important; padding-right: 15px !important; box-sizing: border-box !important; }
+        .col-md-12 { width: 100% !important; padding-right: 15px !important; box-sizing: border-box !important; }
+        .col-sm-6 { width: 50% !important; box-sizing: border-box !important; }
+        
+        /* Space out the clinical details lines */
+        .mb-3 { margin-bottom: 12px !important; } 
+        .text-sm-end { text-align: right !important; }
+
+        /* Clinic Header Formatting */
+        .print-only-header { display: block !important; text-align: center; margin-bottom: 30px; border-bottom: 2px solid #8A2BE2 !important; padding-bottom: 15px; }
+        .print-only-header h1 { font-weight: bold; margin-bottom: 5px; font-size: 20pt !important; border-bottom: none !important; padding-bottom: 0 !important; }
+        .print-only-header h5 { border-bottom: none !important; margin-top: 0 !important; margin-bottom: 10px !important; padding-bottom: 0 !important; text-align: center !important;} 
+        .print-only-header p { margin: 3px 0 !important; color: black !important; }
+        
+        /* Update & Payment Logs Tables Alignment */
+        .table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px !important; }
+        .table th, .table td { border: 1px solid #ccc !important; padding: 8px !important; text-align: left !important; color: black !important;}
+        .table th { font-weight: bold !important; color: black !important;}
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="container-fluid p-0">
+      <div class="row g-0">
+        <!-- Sidebar -->
+          <div class="col-lg-4 d-none d-lg-flex split-left flex-column justify-content-center align-items-center text-center"
+     style="background: #F5F5F5 !important; min-height: 100vh;">
+
+  <!-- Clinic Image -->
+  <img 
+    src="https://drive.google.com/thumbnail?id=1pYRda6X1FD-aLmkqu_26480dSlQa2Se2&sz=w1000" 
+    alt="Siva Physiocare"
+    class="img-fluid mb-4"
+    style="max-width: 260px; border-radius: 20px;"
+  >
+
+  <!-- Clinic Name -->
+  <h2 class="fw-bold display-5 mb-2" style="color: #6CB4EE;">
+    SIVA
+  </h2>
+
+  <h2 class="fw-bold display-5 mb-3" style="color: #29AB87;">
+    PHYSIOCARE
+  </h2>
+
+  <!-- Description -->
+  <p class="lead text-dark opacity-75 mb-1 fw-bold" style="color: #E4007C !important;">
+    ORTHOPAEDIC & GERIATRIC PHYSIOTHERAPY CLINIC
+  </p>
+
+  <p class="lead text-dark opacity-75">
+    Vengikkal, Thiruvannamalai - 606604
+  </p>
+
+</div>
+        
+        <!-- Forms Area -->
+        <div class="col-lg-8 split-right">
+          <div class="form-wrapper">
+            
+            <div class="nav-tabs-custom">
+              <button class="nav-tab-btn active-register" id="tabRegister" onclick="switchTab('register')">Register</button>
+              <button class="nav-tab-btn" id="tabVisit" onclick="switchTab('visit')">Log Visit</button>
+              <button class="nav-tab-btn" id="tabPayment" onclick="switchTab('payment')">Payment</button>
+              <button class="nav-tab-btn" id="tabHistory" onclick="switchTab('history')">Dashboard</button>
+              <button class="nav-tab-btn" id="tabAddReport" onclick="switchTab('addReport')">+ Add Report</button>
+              <button class="nav-tab-btn" id="tabViewReport" onclick="switchTab('viewReport')"><i class="bi bi-printer"></i> View/Print</button>
+            <button class="nav-tab-btn" id="tabUpdates" onclick="switchTab('updates')"><i class="bi bi-journal-text"></i> Updates</button>
+<button class="nav-tab-btn" id="tabProducts" onclick="switchTab('products')"><i class="bi bi-box-seam"></i> Products</button>
+            </div>
+            
+            <!-- FORM 1: REGISTER -->
+            <div id="registerSection" class="tab-section" style="display: block;">
+              <h3 class="fw-bold text-dark mb-4">New Patient</h3>
+              <form id="patientForm" onsubmit="handlePatientSubmit(event)">
+                <div class="mb-3"><label class="form-label">Patient ID (PID)</label><input type="text" class="form-control readonly-bg" id="reg_pid" name="pid" readonly required></div>
+                <div class="mb-3"><label class="form-label">Full Name</label><input type="text" class="form-control" name="name" required></div>
+                <div class="row">
+                  <div class="col-md-6 mb-3"><label class="form-label">Age</label><input type="number" class="form-control" name="age" required></div>
+                  <div class="col-md-6 mb-3"><label class="form-label">Gender</label><select class="form-select" name="gender" required><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                </div>
+                <div class="mb-3"><label class="form-label">Mobile Number</label><div class="input-group"><span class="input-group-text bg-light">+91</span><input type="tel" class="form-control" id="phone" name="phone" maxlength="10" oninput="handlePhoneInput()" required></div></div>
+                <div class="mb-4"><label class="form-label">Address</label><textarea class="form-control" name="address" rows="2" required></textarea></div>
+                <button type="submit" class="btn btn-custom btn-primary-custom w-100" id="btnSubmitPatient">Register Patient</button>
+                <div id="msgPatient" class="mt-3 text-center rounded p-2"></div>
+              </form>
+            </div>
+
+            <!-- FORM 2: VISIT LOG -->
+ <!-- FORM 2: VISIT LOG -->
+            <div id="visitSection" class="tab-section">
+               <h3 class="fw-bold text-dark mb-4">Log Patient Visit</h3>
+               <form id="visitForm" onsubmit="handleVisitSubmit(event)">
+                 <div class="mb-4 p-3 border rounded bg-light">
+                   <label class="form-label text-success fw-bold">Step 1: Enter PID</label>
+                   <div class="input-group">
+                     <input type="text" class="form-control" id="visit_pid" name="pid" required>
+                     <button class="btn btn-success" type="button" id="btnVerifyVisit" onclick="verifyPatient('visit')">Verify</button>
+                   </div>
+                   <div id="verifyMsgVisit" class="mt-2 small fw-bold"></div>
+                 </div>
+                 
+                 <div id="visitDetailsWrapper" class="details-wrapper">
+                   <div class="row">
+                     <div class="col-md-6 mb-3"><label class="form-label">Visit ID</label><input type="text" class="form-control readonly-bg" id="visit_id" name="visit_id" readonly required></div>
+                     <div class="col-md-6 mb-3"><label class="form-label">Visit Date</label><input type="date" class="form-control" id="visit_date" name="visit_date" required></div>
+                   </div>
+                   
+                   <!-- NEW CATEGORY DROPDOWN ADDED HERE -->
+                   <div class="row">
+                     <div class="col-md-6 mb-3">
+                       <label class="form-label">Category</label>
+                       <select class="form-select" name="category" required>
+                         <option value="" disabled selected>-- Select Category --</option>
+                         <option value="General Consultation">General Consultation</option>
+                         <option value="Neck Pain">Neck Pain</option>
+                         <option value="Shoulder Pai">Shoulder Pain</option>
+                         <option value="Arm Pain">Arm Pain</option>
+                         <option value="Elbow Pain">Elbow Pain</option>
+                         <option value="Forearm Pain">Forearm Pain</option>
+                         <option value="Wrist Pain">Wrist Pain</option>
+                         <option value="Hand and Finger Pain">Hand and Finger Pain</option>
+                         <option value="Midback Pain">Midback Pain</option>
+                         <option value="Low Back Pain">Low Back Pain</option>
+                         <option value="Hip Pain">Hip Pain</option>
+                         <option value="Thigh Pain">Thigh Pain</option>
+                         <option value="Knee Pain">Knee Pain</option>
+
+                        <option value="Leg Pain">Leg Pain</option>
+                         <option value="Ankle and Foot Pain">Ankle and Foot Pain</option>
+                         <option value="Post OP Rehab">Post OP Rehab</option>
+                         <option value="Geriatric">Geriatric</option>
+                         <option value="Neurology">Neurology</option>
+                         <option value="Paediatrics">Paediatrics</option>
+                         <option value="Fitness">Fitness</option>
+                         <option value="Referred-Modality">Referred-Modality</option>
+                         <option value="Other">Other</option>
+                       </select>
+                     </div>
+                     <div class="col-md-6 mb-3">
+                       <label class="form-label">Diagnosis</label>
+                       <input type="text" class="form-control" name="diagnosis" required>
+                     </div>
+                   </div>
+
+                   <div class="mb-3"><label class="form-label">Treatment/Prognosis</label><textarea class="form-control" name="reason" rows="2" required></textarea></div>
+                   <div class="mb-4"><label class="form-label">Follow-up</label><input type="date" class="form-control" name="follow_up_date"></div>
+                   <button type="submit" class="btn btn-custom btn-success-custom w-100" id="btnSubmitVisit">Save Visit Record</button>
+                 </div>
+               </form>
+            </div>
+
+            <!-- FORM 3: PAYMENT LOG (UPDATED DATES AND NOTES) -->
+            <div id="paymentSection" class="tab-section">
+              <h3 class="fw-bold text-dark mb-4">Billing & Payment</h3>
+              <form id="paymentForm" onsubmit="handlePaymentSubmit(event)">
+                <div class="mb-4 p-3 border rounded" style="background-color: #f3f0f9;">
+                  <label class="form-label fw-bold" style="color: #6f42c1;">Step 1: Enter PID</label>
+                  <div class="input-group"><input type="text" class="form-control" id="pay_pid" name="pid" required><button class="btn btn-purple-custom" type="button" id="btnVerifyPay" onclick="verifyPatient('payment')">Fetch</button></div>
+                  <div id="verifyMsgPay" class="mt-2 small fw-bold"></div>
+                </div>
+                <div id="paymentDetailsWrapper" class="details-wrapper">
+                  <div class="mb-3"><label class="form-label">Select Visit</label><select class="form-select border-primary" id="pay_visit_id" name="pay_visit_id" required></select></div>
+                  
+                  <div class="row">
+                    <div class="col-md-4 mb-3"><label class="form-label">Payment ID</label><input type="text" class="form-control readonly-bg" id="payment_id" name="payment_id" readonly required></div>
+                    <div class="col-md-4 mb-3"><label class="form-label">Payment Date</label><input type="date" class="form-control readonly-bg" id="payment_date" name="payment_date" readonly required></div>
+                  </div>
+                  
+                  <!-- NEW DATES ADDED HERE -->
+                  <div class="row mb-3 p-3 bg-light rounded border">
+                    <div class="col-md-6 mb-2"><label class="form-label fw-bold text-secondary">Billing Period From</label><input type="date" class="form-control" name="period_from" required></div>
+                    <div class="col-md-6 mb-2"><label class="form-label fw-bold text-secondary">Billing Period End</label><input type="date" class="form-control" name="period_to" required></div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <div class="col-md-4"><label class="form-label">Total (₹)</label><input type="number" class="form-control" id="total_amount" name="total_amount" min="0" oninput="calculateBalance()" required></div>
+                    <div class="col-md-4"><label class="form-label text-success">Paid (₹)</label><input type="number" class="form-control" id="paid_amount" name="paid_amount" min="0" oninput="calculateBalance()" required></div>
+                    <div class="col-md-4"><label class="form-label text-danger">Balance (₹)</label><input type="number" class="form-control readonly-bg text-danger" id="balance" name="balance" readonly required></div>
+                  </div>
+                  
+                  <!-- NEW NOTES FIELD ADDED HERE -->
+                  <div class="mb-4">
+                    <label class="form-label fw-bold">Payment Notes</label>
+                    <textarea class="form-control" name="notes" rows="2" placeholder="e.g. Paid via UPI, Pending insurance claim..."></textarea>
+                  </div>
+
+                  <button type="submit" class="btn btn-custom btn-purple-custom w-100" id="btnSubmitPayment">Submit Payment</button>
+                </div>
+              </form>
+            </div>
+
+<!-- FORM 4: PATIENT HISTORY DASHBOARD -->
+            <div id="historySection" class="tab-section">
+               <h3 class="fw-bold text-dark mb-4">Patient Dashboard</h3>
+               
+               <!-- Search Bar -->
+               <div class="mb-4 p-3 border rounded" style="background-color: #e0f8fb;">
+                 <label class="form-label fw-bold" style="color: #087990;">Enter Patient ID</label>
+                 <div class="input-group">
+                   <input type="text" class="form-control border-info" id="hist_pid" placeholder="e.g. spc0405123">
+                   <button class="btn btn-info-custom fw-bold" type="button" id="btnFetchHistory" onclick="fetchPatientHistory()">
+                     <i class="bi bi-search"></i> Fetch Data
+                   </button>
+                 </div>
+                 <div id="histMsg" class="mt-2 small fw-bold"></div>
+               </div>
+
+               <!-- Dashboard Results -->
+               <div id="historyDashboard" class="details-wrapper">
+                 
+                 <!-- 1. Patient Demographics Card -->
+                 <div class="report-card border-info border-start border-4 mb-4">
+                   <h5 class="fw-bold text-info-emphasis mb-3"><i class="bi bi-person-badge"></i> Demographics</h5>
+                   <div class="row">
+                     <div class="col-sm-6 mb-2"><strong>Name:</strong> <span id="dh_name"></span></div>
+                     <div class="col-sm-6 mb-2"><strong>PID:</strong> <span id="dh_pid" class="badge bg-secondary"></span></div>
+                     <div class="col-sm-6 mb-2"><strong>Age/Gender:</strong> <span id="dh_age_gender"></span></div>
+                     <div class="col-sm-6 mb-2"><strong>Phone:</strong> <span id="dh_phone"></span></div>
+                     <div class="col-12 mb-2"><strong>Address:</strong> <span id="dh_address"></span></div>
+                   </div>
+                 </div>
+
+                 <!-- 2. Financial Summary Cards -->
+                 <div class="row mb-4">
+                   <div class="col-md-4">
+                     <div class="card bg-light border-0 shadow-sm text-center p-3">
+                       <div class="text-muted small fw-bold text-uppercase">Total Billed</div>
+                       <h4 class="mb-0 text-dark">₹<span id="dh_billed">0</span></h4>
+                     </div>
+                   </div>
+                   <div class="col-md-4 mt-3 mt-md-0">
+                     <div class="card bg-success bg-opacity-10 border-0 shadow-sm text-center p-3">
+                       <div class="text-success small fw-bold text-uppercase">Total Paid</div>
+                       <h4 class="mb-0 text-success">₹<span id="dh_paid">0</span></h4>
+                     </div>
+                   </div>
+                   <div class="col-md-4 mt-3 mt-md-0">
+                     <div class="card bg-danger bg-opacity-10 border-0 shadow-sm text-center p-3">
+                       <div class="text-danger small fw-bold text-uppercase">Total Balance</div>
+                       <h4 class="mb-0 text-danger">₹<span id="dh_balance">0</span></h4>
+                     </div>
+                   </div>
+                 </div>
+
+                 <!-- 3. Clinical Visits Table -->
+                 <h5 class="fw-bold text-dark mt-4 mb-3"><i class="bi bi-journal-medical"></i> Clinical Visits History</h5>
+                 <div class="table-responsive bg-white rounded border mb-4">
+                   <table class="table table-hover table-sm mb-0" style="font-size: 0.9rem;">
+                     <thead class="bg-light"><tr><th>Date</th><th>Visit ID</th><th>Diagnosis</th><th>Reason</th><th>Follow-up</th></tr></thead>
+                     <tbody id="dh_visits_body"></tbody>
+                   </table>
+                 </div>
+
+                 <!-- 4. Payment History Table -->
+                 <h5 class="fw-bold text-dark mt-4 mb-3"><i class="bi bi-receipt"></i> Payment Ledger</h5>
+                 <div class="table-responsive bg-white rounded border">
+                   <table class="table table-hover table-sm mb-0" style="font-size: 0.9rem;">
+                     <thead class="bg-light"><tr><th>Date</th><th>Payment ID</th><th>Visit ID</th><th>Total (₹)</th><th>Paid (₹)</th><th>Balance (₹)</th></tr></thead>
+                     <tbody id="dh_payments_body"></tbody>
+                   </table>
+                 </div>
+
+               </div>
+            </div>
+
+            <!-- FORM 5: ADD MEDICAL REPORT (UPDATED) -->
+            <div id="addReportSection" class="tab-section">
+              <h3 class="fw-bold text-dark mb-4">Create / Update Medical Report</h3>
+              <form id="reportForm" onsubmit="handleReportSubmit(event)">
+                <div class="mb-4 p-3 border rounded" style="background-color: #fff4e6;">
+                  <label class="form-label fw-bold" style="color: #fd7e14;">Step 1: Verify PID (If report exists, it will be overwritten/updated)</label>
+                  <div class="input-group"><input type="text" class="form-control" style="border-color: #fd7e14;" id="rep_pid" name="pid" required><button class="btn btn-orange-custom" type="button" id="btnVerifyReport" onclick="verifyPatient('report')">Verify PID</button></div>
+                  <div id="verifyMsgReport" class="mt-2 small fw-bold"></div>
+                </div>
+
+                <div id="reportDetailsWrapper" class="details-wrapper">
+                  
+                  <div class="report-card">
+                    <div class="report-header text-primary">General Medical History</div>
+                    <div class="row g-2">
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="bp" id="bp"><label class="form-check-label" for="bp">BP</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="dm" id="dm"><label class="form-check-label" for="dm">Diabetes</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="epilepsy" id="epi"><label class="form-check-label" for="epi">Epilepsy</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="metal_implant" id="metal"><label class="form-check-label" for="metal">Metal Implant</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="medications" id="meds"><label class="form-check-label" for="meds">Medications</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="heart_diseases" id="heart"><label class="form-check-label" for="heart">Heart Disease</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="pregnant" id="preg"><label class="form-check-label" for="preg">Pregnant</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="pacemaker" id="pace"><label class="form-check-label" for="pace">Pacemaker</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="surgeries" id="surg"><label class="form-check-label" for="surg">Surgeries</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="thyroid" id="thy"><label class="form-check-label" for="thy">Thyroid</label></div></div>
+                    </div>
+                    <div class="mt-3"><label class="form-label fw-bold">Notes</label><textarea class="form-control" name="notes" rows="2"></textarea></div>
+                  </div>
+
+                  <div class="report-card">
+                    <div class="report-header text-danger">Musculoskeletal History</div>
+                    <div class="row g-2">
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="injury" id="inj"><label class="form-check-label" for="inj">Injury</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="trauma" id="tra"><label class="form-check-label" for="tra">Trauma</label></div></div>
+                      <div class="col-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="fracture" id="frac"><label class="form-check-label" for="frac">Fracture</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="cumulative_trauma" id="cum"><label class="form-check-label" for="cum">Cumulative Trauma</label></div></div>
+                      <div class="col-6"><div class="form-check"><input class="form-check-input" type="checkbox" name="others" id="oth"><label class="form-check-label" for="oth">Others</label></div></div>
+                    </div>
+                  </div>
+
+                  <div class="report-card bg-light">
+                    <div class="row">
+                      <!-- NEW REFERRED BY FIELD HERE -->
+                      <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold text-primary">Referred By</label>
+                        <input type="text" class="form-control" name="referred_by" placeholder="e.g. Dr. Smith, General Hospital, or Self">
+                      </div>
+
+                      <div class="col-md-6 mb-3"><label class="form-label fw-bold">Chief Complaints</label><textarea class="form-control" name="chief_complaints" rows="2"></textarea></div>
+                      <div class="col-md-6 mb-3"><label class="form-label fw-bold">Past History</label><textarea class="form-control" name="past_history" rows="2"></textarea></div>
+                      <div class="col-md-4 mb-3"><label class="form-label fw-bold">Biological</label><textarea class="form-control" name="biological" rows="2"></textarea></div>
+                      <div class="col-md-4 mb-3"><label class="form-label fw-bold">Psychological</label><textarea class="form-control" name="psychological" rows="2"></textarea></div>
+                      <div class="col-md-4 mb-3"><label class="form-label fw-bold">Sociological</label><textarea class="form-control" name="sociological" rows="2"></textarea></div>
+                      <div class="col-md-6 mb-3"><label class="form-label fw-bold">Objective Examination</label><textarea class="form-control" name="objective_examination" rows="2"></textarea></div>
+                      <div class="col-md-6 mb-3"><label class="form-label fw-bold">Investigation</label><textarea class="form-control" name="investigation" rows="2"></textarea></div>
+                      <div class="col-md-12 mb-3"><label class="form-label fw-bold text-danger">Diagnosis</label><input type="text" class="form-control border-danger" name="diagnosis"></div>
+                      <div class="col-md-6 mb-3"><label class="form-label fw-bold">Treatment Plan</label><textarea class="form-control" name="treatment" rows="2"></textarea></div>
+                      <div class="col-md-6 mb-3"><label class="form-label fw-bold">Home Advices</label><textarea class="form-control" name="home_advices" rows="2"></textarea></div>
+                    </div>
+                  </div>
+
+                  <!-- FILE UPLOAD SECTION -->
+                  <div class="report-card border-info">
+                    <div class="report-header text-info-emphasis bg-info bg-opacity-10"><i class="bi bi-cloud-arrow-up"></i> Upload Reports (Drive)</div>
+                    <input type="file" class="form-control" id="report_files" multiple accept="image/*,.pdf,.doc,.docx">
+                    <small class="text-muted mt-1 d-block">Max 10 files allowed. Files will be appended to the patient's record.</small>
+                  </div>
+
+                  <button type="submit" class="btn btn-custom btn-orange-custom w-100" id="btnSubmitReport"><i class="bi bi-save"></i> Save / Update Medical Report</button>
+                </div>
+              </form>
+            </div>
+
+
+            <!-- FORM 6: VIEW & PRINT MEDICAL REPORT -->
+            <div id="viewReportSection" class="tab-section">
+              
+              <!-- Hidden print header that only shows on paper -->
+             <div class="print-only-header">
+    <h1>
+        <b style="color: #6CB4EE !important;">SIVA</b>
+        <b style="color: #29AB87 !important;">PHYSIOCARE</b>
+    </h1>
+
+    <h5 style="color: #E4007C !important;">
+        ORTHOPAEDIC & GERIATRIC PHYSIOTHERAPY CLINIC
+    </h5>
+
+    <p>
+        UK complex, Selva Nagar Opposite to Andal Singaravelan Thirumana Mandapam,
+        Vengikkal, Thiruvannamalai, 606604
+    </p>
+
+    <p>
+        for Appointment and Enquiries <strong>9940754748</strong>
+    </p>
+</div>
+
+              <h3 class="fw-bold text-dark mb-4 d-print-none">View Patient Report</h3>
+              <div class="mb-4 p-3 border rounded d-print-none" style="background-color: #fdf2f8;">
+                <label class="form-label fw-bold" style="color: #d63384;">Enter PID</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" style="border-color: #d63384;" id="view_pid">
+                  <button class="btn btn-pink-custom fw-bold" type="button" id="btnFetchReport" onclick="fetchPatientReport()">Fetch Report</button>
+                </div>
+                <div id="viewMsg" class="mt-2 small fw-bold"></div>
+              </div>
+
+              <div id="reportViewDashboard" class="details-wrapper">
+                
+                <!-- Print Button -->
+                <div class="text-end mb-3 d-print-none">
+                  <button class="btn btn-dark fw-bold" onclick="window.print()"><i class="bi bi-printer"></i> Print Report</button>
+                </div>
+
+                <div class="row mb-4 bg-light p-3 rounded border">
+                  <div class="col-sm-6 mb-2">
+                    <strong>Name:</strong> <span id="vr_name" class="fs-5 text-primary"></span>
+                  </div>
+                  <div class="col-sm-6 mb-2 text-sm-end">
+                    <strong>Patient ID:</strong> <span id="vr_pid" class="badge bg-secondary fs-6"></span>
+                  </div>
+                  <div class="col-sm-6">
+                    <strong>Age/Gender:</strong> <span id="vr_demographics"></span>
+                  </div>
+                  <div class="col-sm-6 text-sm-end mt-2 mt-sm-0">
+                    <small class="text-muted">Last Updated: <span id="vr_date"></span></small>
+                  </div>
+                </div>
+                
+                <h5 class="fw-bold text-primary border-bottom pb-2">Medical History</h5>
+                <div class="d-flex flex-wrap gap-2 mb-4" id="vr_badges"></div>
+
+                <h5 class="fw-bold text-dark border-bottom pb-2 mt-4">Clinical Details</h5>
+                <div class="row">
+                  <!-- REFERRED BY ADDED HERE -->
+                  <div class="col-md-12 mb-3"><strong>Referred By:</strong> <p class="mb-0 text-primary" id="vr_ref"></p></div>
+                  
+                  <div class="col-md-6 mb-3"><strong>Chief Complaints:</strong> <p class="mb-0" id="vr_chief"></p></div>
+                  <div class="col-md-6 mb-3"><strong>Past History:</strong> <p class="mb-0" id="vr_past"></p></div>
+                  <div class="col-md-4 mb-3"><strong>Biological:</strong> <p class="mb-0" id="vr_bio"></p></div>
+                  <div class="col-md-4 mb-3"><strong>Psychological:</strong> <p class="mb-0" id="vr_psy"></p></div>
+                  <div class="col-md-4 mb-3"><strong>Sociological:</strong> <p class="mb-0" id="vr_soc"></p></div>
+                  <div class="col-md-6 mb-3"><strong>Objective Exam:</strong> <p class="mb-0" id="vr_obj"></p></div>
+                  <div class="col-md-6 mb-3"><strong>Investigation:</strong> <p class="mb-0" id="vr_inv"></p></div>
+                  <div class="col-md-12 mb-3 bg-danger bg-opacity-10 p-3 rounded border border-danger"><strong>Diagnosis:</strong> <h5 class="text-danger fw-bold mb-0 mt-1" id="vr_diag"></h5></div>
+                  <div class="col-md-6 mb-3"><strong>Treatment Plan:</strong> <p class="mb-0" id="vr_treat"></p></div>
+                  <div class="col-md-6 mb-3"><strong>Home Advices:</strong> <p class="mb-0" id="vr_home"></p></div>
+                  <div class="col-md-12 mt-2 pt-2 border-top"><strong>General Notes:</strong> <p class="mb-0" id="vr_notes"></p></div>
+                </div>
+
+                <!-- PATIENT UPDATES ADDED HERE -->
+                <h5 class="fw-bold text-dark border-bottom pb-2 mt-4">Patient Updates Log</h5>
+                <div class="table-responsive mb-4">
+                  <table class="table table-bordered table-sm mb-0">
+                    <thead class="bg-light"><tr><th width="20%">Date</th><th>Update Notes</th></tr></thead>
+                    <tbody id="vr_updates_body">
+                      <!-- Filled by JS -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Attached Files Display -->
+                <div id="vr_files_container" class="mt-4 pt-3 border-top d-print-none">
+                  <h5 class="fw-bold text-info-emphasis"><i class="bi bi-paperclip"></i> Attached Files</h5>
+                  <ul id="vr_files_list" class="list-group list-group-flush"></ul>
+                </div>
+
+              </div>
+            </div>
+
+                        <!-- FORM 7: PATIENT UPDATES -->
+            <div id="updatesSection" class="tab-section">
+              <h3 class="fw-bold text-dark mb-4">Patient Updates</h3>
+              <form id="updateForm" onsubmit="handleUpdateSubmit(event)">
+                <div class="mb-4 p-3 border rounded bg-light">
+                  <label class="form-label text-secondary fw-bold">Step 1: Verify PID</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="update_pid" name="pid" required>
+                    <button class="btn btn-secondary" type="button" id="btnVerifyUpdate" onclick="verifyForNewTabs('update')">Verify</button>
+                  </div>
+                  <div id="verifyMsgUpdate" class="mt-2 small fw-bold"></div>
+                </div>
+                
+                <div id="updateDetailsWrapper" class="details-wrapper">
+                  <div class="mb-3">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-control readonly-bg" id="update_date" name="update_date" readonly required>
+                  </div>
+                  <div class="mb-4">
+                    <label class="form-label">Update Notes</label>
+                    <textarea class="form-control" name="update_notes" rows="4" placeholder="Enter patient updates here..." required></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-custom btn-secondary w-100" id="btnSubmitUpdate">Save Update</button>
+                </div>
+              </form>
+            </div>
+
+<!-- FORM 8: PRODUCTS -->
+<div id="productsSection" class="tab-section">
+  <h3 class="fw-bold text-dark mb-4">Product Assignment</h3>
+  <form id="productForm" onsubmit="handleProductSubmit(event)">
+    <div class="mb-4 p-3 border rounded bg-light">
+      <label class="form-label text-primary fw-bold">Step 1: Verify PID</label>
+      <div class="input-group">
+        <input type="text" class="form-control" id="product_pid" name="pid" required>
+        <button class="btn btn-primary" type="button" id="btnVerifyProduct" onclick="verifyForNewTabs('product')">Verify</button>
+      </div>
+      <div id="verifyMsgProduct" class="mt-2 small fw-bold"></div>
+    </div>
+    
+    <div id="productDetailsWrapper" class="details-wrapper">
+      <div class="mb-3">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-control readonly-bg" id="product_date" name="product_date" readonly required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Product Name</label>
+        <input type="text" class="form-control" name="product_name" required>
+      </div>
+      <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Quantity</label>
+          <input type="number" class="form-control" name="quantity" min="1" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Price (₹)</label>
+          <input type="number" class="form-control" name="price" min="0" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-custom btn-primary-custom w-100" id="btnSubmitProduct">Save Product</button>
+    </div>
+  </form>
+</div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize dates for new tabs
+document.getElementById('update_date').valueAsDate = new Date();
+document.getElementById('product_date').valueAsDate = new Date();
+
+function switchTab(tab) {
+        // Added 'updates' and 'products' to the list of sections
+        const sections = ['register', 'visit', 'payment', 'history', 'addReport', 'viewReport', 'updates', 'products'];
+        
+        sections.forEach(s => {
+          // Show or hide the section content
+          document.getElementById(s + 'Section').style.display = s === tab ? 'block' : 'none';
+          
+          // Add or remove the active color on the top button
+          document.getElementById('tab' + s.charAt(0).toUpperCase() + s.slice(1)).classList.toggle(`active-${s}`, s === tab);
+        });
+      }
+
+      function handlePhoneInput() {
+        const phone = document.getElementById('phone');
+        phone.value = phone.value.replace(/\D/g, '');
+        if (phone.value.length === 10) {
+          const d = new Date(); document.getElementById('reg_pid').value = `spc${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${phone.value.slice(-3)}`;
+        } else { document.getElementById('reg_pid').value = ''; }
+      }
+
+      function calculateBalance() {
+        const total = parseFloat(document.getElementById('total_amount').value) || 0;
+        const paid = parseFloat(document.getElementById('paid_amount').value) || 0;
+        document.getElementById('balance').value = total - paid;
+      }
+
+      function verifyPatient(context) {
+        let pidInput = document.getElementById(context==='visit'?'visit_pid':context==='payment'?'pay_pid':'rep_pid');
+        let verifyBtn = document.getElementById(context==='visit'?'btnVerifyVisit':context==='payment'?'btnVerifyPay':'btnVerifyReport');
+        let verifyMsg = document.getElementById(context==='visit'?'verifyMsgVisit':context==='payment'?'verifyMsgPay':'verifyMsgReport');
+        let detailsWrapper = document.getElementById(context==='visit'?'visitDetailsWrapper':context==='payment'?'paymentDetailsWrapper':'reportDetailsWrapper');
+        
+        if(!pidInput.value.trim()) return verifyMsg.innerHTML = '<span class="text-danger">Enter a PID.</span>';
+        verifyBtn.disabled = true; verifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        
+        if (context === 'visit' || context === 'report') {
+          google.script.run.withSuccessHandler(res => {
+            verifyBtn.innerHTML = 'Verify PID';
+            if (res.exists) {
+              pidInput.readOnly = true; pidInput.classList.add('readonly-bg'); verifyBtn.disabled = true;
+              verifyMsg.innerHTML = `<span class="text-success">✅ ${res.name}</span>`; detailsWrapper.style.display = 'block';
+              if(context === 'visit') { document.getElementById('visit_id').value = 'VST-' + Math.floor(1000+Math.random()*9000); document.getElementById('visit_date').valueAsDate = new Date(); }
+            } else { verifyBtn.disabled = false; verifyMsg.innerHTML = '<span class="text-danger">❌ PID not found.</span>'; }
+          }).checkPatientExists(pidInput.value);
+        } else {
+          google.script.run.withSuccessHandler(res => {
+            verifyBtn.innerHTML = 'Fetch Visits';
+            if (res.exists) {
+              pidInput.readOnly = true; pidInput.classList.add('readonly-bg'); verifyBtn.disabled = true;
+              verifyMsg.innerHTML = `<span style="color:#6f42c1;">✅ ${res.name}</span>`; detailsWrapper.style.display = 'block';
+              document.getElementById('payment_id').value = 'PAY-' + Math.floor(1000+Math.random()*9000); document.getElementById('payment_date').valueAsDate = new Date();
+              const select = document.getElementById('pay_visit_id'); select.innerHTML = '<option value="" disabled selected>-- Select a Past Visit --</option>';
+              if(res.visits.length === 0) select.innerHTML = '<option value="" disabled>No past visits.</option>';
+              else res.visits.forEach(v => select.innerHTML += `<option value="${v.visit_id}">${v.visit_id} | ${v.date}</option>`);
+            } else { verifyBtn.disabled = false; verifyMsg.innerHTML = '<span class="text-danger">❌ PID not found.</span>'; }
+          }).getPatientAndVisits(pidInput.value);
+        }
+      }
+
+      // FILE READER HELPER FUNCTION
+      function getFilesData() {
+        return new Promise((resolve) => {
+          const files = document.getElementById('report_files').files;
+          if (files.length === 0) return resolve([]);
+          if (files.length > 10) { alert("Maximum 10 files allowed!"); return resolve(null); }
+          
+          let fileDataArray = []; let filesProcessed = 0;
+          for (let i = 0; i < files.length; i++) {
+            let file = files[i]; let reader = new FileReader();
+            reader.onload = function(e) {
+              fileDataArray.push({ filename: file.name, mimeType: file.type, base64: e.target.result.split(',')[1] });
+              filesProcessed++;
+              if (filesProcessed === files.length) resolve(fileDataArray);
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      async function handleReportSubmit(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSubmitReport');
+        btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing Files & Saving...';
+        
+        let filesData = await getFilesData();
+        if (filesData === null) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-save"></i> Save / Update Medical Report'; return; }
+
+        const form = document.getElementById('reportForm');
+        const formData = new FormData(form);
+        const formObject = Object.fromEntries(formData.entries());
+
+        google.script.run.withSuccessHandler((msg) => {
+          form.reset(); document.getElementById('reportDetailsWrapper').style.display = 'none';
+          document.getElementById('rep_pid').readOnly = false; document.getElementById('rep_pid').classList.remove('readonly-bg');
+          document.getElementById('btnVerifyReport').disabled = false; document.getElementById('verifyMsgReport').innerHTML = '';
+          btn.disabled = false; btn.innerHTML = '<i class="bi bi-save"></i> Save / Update Medical Report';
+          alert(msg);
+        }).withFailureHandler(err => {
+          alert('Error: ' + err.message); btn.disabled = false; btn.innerHTML = '<i class="bi bi-save"></i> Save / Update Medical Report';
+        }).processReportForm(formObject, filesData);
+      }
+
+      function fetchPatientReport() {
+        const pid = document.getElementById('view_pid').value.trim();
+        const btn = document.getElementById('btnFetchReport');
+        const msg = document.getElementById('viewMsg');
+        const dash = document.getElementById('reportViewDashboard');
+
+        if (!pid) return msg.innerHTML = '<span class="text-danger">Enter PID.</span>';
+        btn.disabled = true; btn.innerHTML = 'Fetching...'; dash.style.display = 'none'; msg.innerHTML = '';
+
+        google.script.run.withSuccessHandler(res => {
+          btn.disabled = false; btn.innerHTML = 'Fetch Report';
+          if (!res.exists) return msg.innerHTML = `<span class="text-danger">${res.error}</span>`;
+          if (!res.report) return msg.innerHTML = `<span class="text-danger">No Report found.</span>`;
+          
+          document.getElementById('vr_name').innerText = res.patient.name;
+          document.getElementById('vr_pid').innerText = pid;
+          document.getElementById('vr_demographics').innerText = `${res.patient.age} Yrs / ${res.patient.gender}`;
+          document.getElementById('vr_date').innerText = res.report.last_updated.split(' ')[0] || res.report.last_updated;
+          
+          document.getElementById('vr_ref').innerText = res.report.referred_by || '-'; // REFERRED BY
+          document.getElementById('vr_chief').innerText = res.report.chief_complaints || '-';
+          document.getElementById('vr_past').innerText = res.report.past_history || '-';
+          document.getElementById('vr_bio').innerText = res.report.biological || '-';
+          document.getElementById('vr_psy').innerText = res.report.psychological || '-';
+          document.getElementById('vr_soc').innerText = res.report.sociological || '-';
+          document.getElementById('vr_obj').innerText = res.report.objective_examination || '-';
+          document.getElementById('vr_inv').innerText = res.report.investigation || '-';
+          document.getElementById('vr_diag').innerText = res.report.diagnosis || 'Pending Diagnosis';
+          document.getElementById('vr_treat').innerText = res.report.treatment || '-';
+          document.getElementById('vr_home').innerText = res.report.home_advices || '-';
+          document.getElementById('vr_notes').innerText = res.report.notes || '-';
+
+          const c = [
+            { l: 'BP', v: res.report.bp }, { l: 'Diabetes', v: res.report.dm }, { l: 'Epilepsy', v: res.report.epilepsy },
+            { l: 'Metal Implant', v: res.report.metal_implant }, { l: 'Medications', v: res.report.medications },
+            { l: 'Heart Disease', v: res.report.heart_diseases }, { l: 'Pregnant', v: res.report.pregnant },
+            { l: 'Pacemaker', v: res.report.pacemaker }, { l: 'Surgeries', v: res.report.surgeries }, { l: 'Thyroid', v: res.report.thyroid },
+            { l: 'Injury', v: res.report.injury }, { l: 'Trauma', v: res.report.trauma }, { l: 'Fracture', v: res.report.fracture },
+            { l: 'Cumulative Trauma', v: res.report.cumulative_trauma }, { l: 'Others', v: res.report.others }
+          ];
+
+          let badgesHTML = '';
+          c.forEach(i => { badgesHTML += `<span class="${i.v === 'Yes' ? 'badge-yes' : 'badge-no'}">${i.l}: ${i.v}</span>`; });
+          document.getElementById('vr_badges').innerHTML = badgesHTML;
+
+          // Process Updates
+          const uBody = document.getElementById('vr_updates_body');
+          uBody.innerHTML = '';
+          if (res.updates && res.updates.length > 0) {
+            res.updates.forEach(u => {
+              uBody.innerHTML += `<tr><td>${u.date.split(' ')[0] || u.date}</td><td>${u.notes}</td></tr>`;
+            });
+          } else {
+            uBody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">No updates recorded.</td></tr>';
+          }
+
+          // Process Files
+          const filesContainer = document.getElementById('vr_files_container');
+          const filesList = document.getElementById('vr_files_list');
+          filesList.innerHTML = '';
+          if (res.report.files && res.report.files.length > 0) {
+            filesContainer.style.display = 'block';
+            res.report.files.forEach(f => {
+              filesList.innerHTML += `<li class="list-group-item"><a href="${f.url}" target="_blank" class="text-decoration-none"><i class="bi bi-box-arrow-up-right me-2"></i>${f.name}</a></li>`;
+            });
+          } else {
+            filesContainer.style.display = 'none';
+          }
+
+          dash.style.display = 'block';
+        }).getMedicalReport(pid);
+      }
+
+      function fetchPatientHistory() {
+        const pid = document.getElementById('hist_pid').value.trim();
+        const msgDiv = document.getElementById('histMsg');
+        const dash = document.getElementById('historyDashboard');
+        const btn = document.getElementById('btnFetchHistory');
+
+        if (!pid) {
+          msgDiv.innerHTML = '<span class="text-danger">Please enter a Patient ID.</span>';
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Fetching...';
+        msgDiv.innerHTML = '';
+        dash.style.display = 'none';
+
+        google.script.run
+          .withSuccessHandler(function(response) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i> Fetch Data';
+
+            if (!response.exists) {
+              msgDiv.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle"></i> Patient ID not found.</span>';
+              return;
+            }
+
+            // 1. Populate Demographics
+            document.getElementById('dh_name').innerText = response.patient.name;
+            document.getElementById('dh_pid').innerText = response.patient.pid;
+            document.getElementById('dh_age_gender').innerText = `${response.patient.age} Yrs / ${response.patient.gender}`;
+            document.getElementById('dh_phone').innerText = response.patient.phone;
+            document.getElementById('dh_address').innerText = response.patient.address;
+
+            // 2. Populate Financial Totals
+            document.getElementById('dh_billed').innerText = response.financialSummary.totalBilled.toLocaleString();
+            document.getElementById('dh_paid').innerText = response.financialSummary.totalPaid.toLocaleString();
+            document.getElementById('dh_balance').innerText = response.financialSummary.outstandingBalance.toLocaleString();
+
+            // 3. Populate Visits Table
+            const vBody = document.getElementById('dh_visits_body');
+            vBody.innerHTML = '';
+            if (response.visits.length === 0) {
+              vBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No visits recorded yet.</td></tr>';
+            } else {
+              response.visits.forEach(v => {
+                vBody.innerHTML += `<tr>
+                  <td>${v.date.split(' ')[0]}</td>
+                  <td><span class="badge bg-light text-dark border">${v.visit_id}</span></td>
+                  <td>${v.diagnosis}</td>
+                  <td>${v.reason}</td>
+                  <td>${v.follow_up ? v.follow_up.split(' ')[0] : '-'}</td>
+                </tr>`;
+              });
+            }
+
+            // 4. Populate Payments Table
+            const pBody = document.getElementById('dh_payments_body');
+            pBody.innerHTML = '';
+            if (response.payments.length === 0) {
+              pBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No payments recorded yet.</td></tr>';
+            } else {
+              response.payments.forEach(p => {
+                pBody.innerHTML += `<tr>
+                  <td>${p.date.split(' ')[0]}</td>
+                  <td><span class="badge bg-light text-dark border">${p.payment_id}</span></td>
+                  <td>${p.visit_id}</td>
+                  <td>₹${p.total}</td>
+                  <td>₹${p.paid}</td>
+                  <td class="${p.balance > 0 ? 'text-danger fw-bold' : 'text-success'}">₹${p.balance}</td>
+                </tr>`;
+              });
+            }
+
+            // Show Dashboard
+            dash.style.display = 'block';
+            msgDiv.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Data loaded successfully.</span>';
+            setTimeout(() => msgDiv.innerHTML = '', 4000);
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i> Fetch Data';
+            msgDiv.innerHTML = `<span class="text-danger">Error: ${err.message}</span>`;
+          })
+          .getPatientComprehensiveHistory(pid);
+      }
+
+      function handlePatientSubmit(e) { 
+        e.preventDefault(); 
+        google.script.run.withSuccessHandler(() => { 
+          document.getElementById('patientForm').reset(); 
+          alert('Patient Registered!'); 
+          }).processForm(document.getElementById('patientForm')); 
+      }
+
+      function handleVisitSubmit(e) { 
+        e.preventDefault(); 
+        google.script.run.withSuccessHandler(() => { 
+          document.getElementById('visitForm').reset(); 
+          document.getElementById('visitDetailsWrapper').style.display='none'; 
+          document.getElementById('btnVerifyVisit').disabled=false; 
+          document.getElementById('visit_pid').readOnly=false; 
+          document.getElementById('visit_pid').classList.remove('readonly-bg'); 
+          alert('Visit Logged!'); }).processVisitForm(document.getElementById('visitForm')); 
+      }
+      
+      function handlePaymentSubmit(e) { e.preventDefault(); google.script.run.withSuccessHandler(() => { document.getElementById('paymentForm').reset(); document.getElementById('paymentDetailsWrapper').style.display='none'; document.getElementById('btnVerifyPay').disabled=false; document.getElementById('pay_pid').readOnly=false; document.getElementById('pay_pid').classList.remove('readonly-bg'); alert('Payment Recorded!'); }).processPaymentForm(document.getElementById('paymentForm')); }
+    
+    // Verification logic for the two new tabs
+function verifyForNewTabs(type) {
+  const pidInput = document.getElementById(type + '_pid');
+  const btn = document.getElementById('btnVerify' + (type === 'update' ? 'Update' : 'Product'));
+  const msg = document.getElementById('verifyMsg' + (type === 'update' ? 'Update' : 'Product'));
+  const wrapper = document.getElementById(type + 'DetailsWrapper');
+
+  if(!pidInput.value.trim()) return msg.innerHTML = '<span class="text-danger">Enter a PID.</span>';
+  
+  btn.disabled = true; btn.innerHTML = 'Verifying...';
+  
+  google.script.run.withSuccessHandler(res => {
+    btn.innerHTML = 'Verify';
+    if (res.exists) {
+      pidInput.readOnly = true; pidInput.classList.add('readonly-bg'); btn.disabled = true;
+      msg.innerHTML = `<span class="text-success">✅ ${res.name}</span>`;
+      wrapper.style.display = 'block';
+    } else {
+      btn.disabled = false; msg.innerHTML = '<span class="text-danger">❌ PID not found.</span>';
+    }
+  }).checkPatientExists(pidInput.value);
+}
+
+// Submit Handlers
+function handleUpdateSubmit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btnSubmitUpdate');
+  btn.disabled = true; btn.innerHTML = 'Saving...';
+  
+  google.script.run.withSuccessHandler(() => {
+    document.getElementById('updateForm').reset();
+    document.getElementById('update_date').valueAsDate = new Date();
+    document.getElementById('updateDetailsWrapper').style.display='none';
+    document.getElementById('btnVerifyUpdate').disabled=false;
+    document.getElementById('update_pid').readOnly=false;
+    document.getElementById('update_pid').classList.remove('readonly-bg');
+    document.getElementById('verifyMsgUpdate').innerHTML='';
+    btn.disabled = false; btn.innerHTML = 'Save Update';
+    alert('Update Saved!');
+  }).processUpdateForm(document.getElementById('updateForm'));
+}
+
+function handleProductSubmit(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btnSubmitProduct');
+  btn.disabled = true; btn.innerHTML = 'Saving...';
+  
+  google.script.run.withSuccessHandler(() => {
+    document.getElementById('productForm').reset();
+    document.getElementById('product_date').valueAsDate = new Date();
+    document.getElementById('productDetailsWrapper').style.display='none';
+    document.getElementById('btnVerifyProduct').disabled=false;
+    document.getElementById('product_pid').readOnly=false;
+    document.getElementById('product_pid').classList.remove('readonly-bg');
+    document.getElementById('verifyMsgProduct').innerHTML='';
+    btn.disabled = false; btn.innerHTML = 'Save Product';
+    alert('Product Saved!');
+  }).processProductForm(document.getElementById('productForm'));
+}
+    
+    </script>
+  </body>
+</html>

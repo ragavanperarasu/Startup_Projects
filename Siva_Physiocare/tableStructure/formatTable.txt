@@ -1,0 +1,9 @@
+sheets create
+
+1) patients - pid (PK)	name	age	gender	phone	address
+2) visits - visit_id (PK)	pid (FK)	visit_date	diagnosis	reason	follow_up_date	category
+3) treatments - 
+4) payments
+5) reports
+6) updates
+7) products
